@@ -4,11 +4,13 @@ import { User } from '../src/models/user'
 
 const defaultUsers = [
     {
+        _id: '5bce079f7a3b020f9c726cb1',
         name: 'one',
         email: 'email',
         password: 'password'
     },
     {
+        _id: '5bce079f7a3b020f9c726cb2',
         name: 'two',
         email: 'email',
         password: 'password'
@@ -75,6 +77,29 @@ describe('User endpoints', () => {
                     expect(err).toBeDefined()
                     done()
                 })
+        });
+    });
+    describe('GET /todos/:id', () => {
+        it('should fail with invalid id', done => {
+            agent(app).get(path.user + '/1')
+                .send()
+                .expect(404)
+                .end((err, r) => {
+                    expect(r.status).toBe(404)
+                    expect(err).toBeDefined()
+                    done()
+                })
+        });
+        it('should not  find by non existing id', async () => {
+            const { body, status } = await agent(app).get(path.user + '/' + '7bce079f7a3b020f9c726cb3').send()
+            expect(status).toBe(404);
+            expect(body).toMatchObject({});
+        });
+        it('should find by id', async () => {
+            const { body, status } = await agent(app).get(path.user + '/' + defaultUsers[0]._id).send()
+            expect(status).toBe(200);
+            expect(body).not.toBeNull();
+            expect(body).toMatchObject(defaultUsers[0]);
         });
     });
 });
