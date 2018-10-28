@@ -45,4 +45,4 @@ app
     .get(path.todo, (req, res) => Todo.find(req.query).then(r => res.json(r))
     )
 
-export const application = app.listen
+export const application: any = app

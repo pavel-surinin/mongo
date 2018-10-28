@@ -1,5 +1,5 @@
 import { agent } from 'supertest'
-import { app, path } from '../src/server'
+import { application as app, path } from '../src/server'
 import { User } from '../src/models/user'
 
 const defaultUsers = [

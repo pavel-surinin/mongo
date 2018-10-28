@@ -23,7 +23,7 @@
     "lint": "tslint -c tslint.json -p tsconfig.json -t stylish",
     "test": "jest -c jest.config.js",
     "build": "npm run lint && npm run compile && npm test -- --coverage",
-    "start": "node target/out/index.js"
+    "start": "tsc && node target/out/index.js"
   },
   "dependencies": {
     "body-parser": "1.18.3",
@@ -32,5 +32,8 @@
     "helmet": "^3.14.0",
     "mongodb": "3.1.4",
     "mongoose": "^5.3.7"
+  },
+  "engines": {
+    "node": "8.9.0"
   }
 }

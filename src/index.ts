@@ -11,4 +11,4 @@ const logStartUp = (err: Error) => {
   console.log(`server is listening on ${port}`)
 }
 
-application(port, logStartUp)
+application.listen(port, logStartUp)
