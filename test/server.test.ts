@@ -24,7 +24,7 @@ beforeEach(done => {
 })
 
 describe('User endpoints', () => {
-    describe('GET /todos', () => {
+    describe('GET /user', () => {
         it('should get all users', async () => {
             const { body, status } = await agent(app).get(path.user).send()
             expect(status).toBe(200);
@@ -45,7 +45,7 @@ describe('User endpoints', () => {
             expect(body).toHaveLength(2)
         });
     });
-    describe('POST /todos', () => {
+    describe('POST /user', () => {
         it('should create one user', async () => {
             const userPost = {
                 name: 'name',
@@ -79,7 +79,7 @@ describe('User endpoints', () => {
                 })
         });
     });
-    describe('GET /todos/:id', () => {
+    describe('GET /user/:id', () => {
         it('should fail with invalid id', done => {
             agent(app).get(path.user + '/1')
                 .send()
@@ -90,7 +90,7 @@ describe('User endpoints', () => {
                     done()
                 })
         });
-        it('should not  find by non existing id', async () => {
+        it('should not find by non existing id', async () => {
             const { body, status } = await agent(app).get(path.user + '/' + '7bce079f7a3b020f9c726cb3').send()
             expect(status).toBe(404);
             expect(body).toMatchObject({});
@@ -100,6 +100,33 @@ describe('User endpoints', () => {
             expect(status).toBe(200);
             expect(body).not.toBeNull();
             expect(body).toMatchObject(defaultUsers[0]);
+        });
+    });
+    describe('DELETE /user/:id', () => {
+        it('should fail with invalid id', done => {
+            agent(app).delete(path.user + '/1')
+                .send()
+                .expect(404)
+                .end((err, r) => {
+                    expect(r.status).toBe(404)
+                    expect(err).toBeDefined()
+                    done()
+                })
+        });
+        it('should not find by non existing id', async () => {
+            const { body, status } = await agent(app).delete(path.user + '/' + '7bce079f7a3b020f9c726cb3').send()
+            expect(status).toBe(404);
+            expect(body).toMatchObject({});
+        });
+        it('should delete by id', async () => {
+            const { body, status } = await agent(app).delete(path.user + '/' + defaultUsers[0]._id).send()
+            expect(status).toBe(202);
+            expect(body).not.toBeNull();
+            expect(body).toMatchObject(defaultUsers[0]);
+
+            const allUsersResponse = await agent(app).get(path.user).send()
+            expect(allUsersResponse.body).toBeInstanceOf(Array)
+            expect(allUsersResponse.body).toHaveLength(1)
         });
     });
 });

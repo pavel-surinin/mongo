@@ -30,12 +30,15 @@ app
                 inCase(r).nonNull().do(() => res.status(200).send(r))
             })
             .catch(err => res.status(404).send(err))
-    }
-    )
-    .delete(path.user, (req, res) => User.deleteOne(req.query)
-        .then(r => res.json(r))
-        .catch(err => res.status(400).send(err))
-    )
+    })
+    .delete(path.user + '/:id', (req, res) => {
+        return User.findByIdAndRemove(req.params['id'])
+            .then(doc => {
+                inCase(doc).null().do(() => res.status(404).send())
+                inCase(doc).nonNull().do(() => res.status(202).send(doc))
+            })
+            .catch(err => res.status(404).send(err))
+    })
 
 app
     .post(path.todo, (req, res) => new Todo(req.body)
