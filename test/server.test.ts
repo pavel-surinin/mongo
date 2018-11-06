@@ -17,10 +17,18 @@ const defaultUsers = [
     }
 ]
 
+const OLD_ENV = process.env;
+
+afterEach(() => {
+    process.env = OLD_ENV;
+});
 beforeEach(done => {
     User.deleteMany({})
         .then(() => defaultUsers.forEach(u => new User(u).save()))
         .then(() => done())
+    // jest.resetModules() // this is important
+    process.env = { ...OLD_ENV };
+    process.env.NODE_ENV = 'test';
 })
 
 describe('User endpoints', () => {

@@ -1,3 +1,14 @@
+
+if (!process.env.NODE_ENV) {
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp'
+    process.env.PORT = '3000'
+}
+
+if (process.env.NODE_ENV === 'test') {
+    process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest'
+    process.env.PORT = '3000'
+}
+
 import Express from 'express'
 import { json } from 'body-parser'
 import { User } from './models/user'
@@ -13,7 +24,6 @@ export const path = {
 const app = Express()
 app.use(json())
 app.use(helmet())
-
 app
     .post(path.user, (req, res) => new User(req.body).save()
         .then(r => res.status(201).json(r))
@@ -39,13 +49,24 @@ app
             })
             .catch(err => res.status(404).send(err))
     })
-
-app
     .post(path.todo, (req, res) => new Todo(req.body)
         .save()
         .then(r => res.json(r))
     )
     .get(path.todo, (req, res) => Todo.find(req.query).then(r => res.json(r))
     )
+
+const logStartUp = (err: Error) => {
+    if (err) {
+        // tslint:disable-next-line:no-console
+        console.log(err)
+    }
+    // tslint:disable-next-line:no-console
+    console.log(`server is listening on ${process.env.PORT}`)
+    // tslint:disable-next-line:no-console
+    console.log(`database url ${process.env.MONGODB_URI}`)
+}
+
+app.listen(process.env.PORT, logStartUp)
 
 export const application: any = app

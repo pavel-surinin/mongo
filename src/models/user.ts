@@ -2,7 +2,7 @@ import { mongoose } from '../database/mongoose'
 import { Schema } from 'mongoose'
 
 export const User = mongoose.model(
-    'User', 
+    'UserMongo',
     new Schema({
         name: {
             type: String,

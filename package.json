@@ -23,7 +23,7 @@
     "lint": "tslint -c tslint.json -p tsconfig.json -t stylish",
     "test": "jest -c jest.config.js",
     "build": "npm run lint && npm run compile && npm test -- --coverage",
-    "start": "tsc && node target/out/index.js"
+    "start": "tsc && node target/out/server.js"
   },
   "dependencies": {
     "body-parser": "1.18.3",
