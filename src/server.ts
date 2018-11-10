@@ -16,6 +16,8 @@ import { Todo } from './models/todo'
 import helmet from 'helmet'
 import { inCase } from 'declarative-js'
 import { pick } from 'lodash'
+import { constants as c } from './server.constants'
+
 export const path = {
     user: '/user',
     todo: '/todos'
@@ -25,22 +27,28 @@ const app = Express()
 app.use(json())
 app.use(helmet())
 app
-    .post(path.user, (req, res) => new User(pick(req.body, 'email', 'password')).save()
-        .then(r => res.status(201).json(r))
-        .catch(err => res.status(400).send(err))
+    .post(path.user, (req, res) => {
+        const user = new User(pick(req.body, 'email', 'password'))
+        return user.save()
+            .then(() => user.generateAuthToken())
+            .then(token => res.header(c.AUTH_HEADER, token).status(201).json(user))
+            .catch(err => res.status(400).send(err))
+    }
     )
+    .get(path.user + '/me', (req, res) => User.findByToken(req.header(c.AUTH_HEADER)!)
+        .then(user => {
+            if (user) {
+                res.send(user)
+            }
+            throw Error()
+        })
+        .catch(() => res.status(401).send())
+    )
+
     .get(path.user, (req, res) => User.find(req.query)
         .then(r => res.json(r))
         .catch(err => res.status(400).send(err))
     )
-    .get(path.user + '/:id', (req, res) => {
-        return User.findById(req.params['id'])
-            .then(r => {
-                inCase(r).null().do(() => res.status(404).send())
-                inCase(r).nonNull().do(() => res.status(200).send(r))
-            })
-            .catch(err => res.status(404).send(err))
-    })
     .delete(path.user + '/:id', (req, res) => {
         return User.findByIdAndRemove(req.params['id'])
             .then(doc => {

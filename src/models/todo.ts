@@ -1,11 +1,6 @@
 import { mongoose } from '../database/mongoose'
 import { Schema } from 'mongoose'
-
-export interface TodoModel extends mongoose.Document {
-    text: string,
-    completed?: boolean,
-    submittedAt?: number
-}
+import { TodoModel } from './model.type'
 
 export const Todo = mongoose.model<TodoModel>(
     'Todo',
