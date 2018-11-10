@@ -26,12 +26,18 @@
     "start": "tsc && node target/out/server.js"
   },
   "dependencies": {
+    "@types/crypto-js": "^3.1.43",
+    "@types/lodash": "^4.14.118",
+    "@types/validator": "^9.4.2",
     "body-parser": "1.18.3",
+    "crypto-js": "^3.1.9-1",
     "declarative-js": "^3.0.30",
     "express": "4.16.3",
     "helmet": "^3.14.0",
+    "lodash": "^4.17.11",
     "mongodb": "3.1.4",
-    "mongoose": "^5.3.7"
+    "mongoose": "^5.3.7",
+    "validator": "^10.8.0"
   },
   "engines": {
     "node": "8.9.0"

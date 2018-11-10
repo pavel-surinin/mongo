@@ -7,5 +7,5 @@ module.exports = {
     "verbose": true,
     "cacheDirectory": "./target/tmp/",
     "coverageDirectory": "./target/coverage/",
-    "testURL": "http://localhost/"
+    "testURL": "http://localhost/",
 }   

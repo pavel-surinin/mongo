@@ -15,7 +15,7 @@ import { User } from './models/user'
 import { Todo } from './models/todo'
 import helmet from 'helmet'
 import { inCase } from 'declarative-js'
-
+import { pick } from 'lodash'
 export const path = {
     user: '/user',
     todo: '/todos'
@@ -25,7 +25,7 @@ const app = Express()
 app.use(json())
 app.use(helmet())
 app
-    .post(path.user, (req, res) => new User(req.body).save()
+    .post(path.user, (req, res) => new User(pick(req.body, 'email', 'password')).save()
         .then(r => res.status(201).json(r))
         .catch(err => res.status(400).send(err))
     )
@@ -49,11 +49,13 @@ app
             })
             .catch(err => res.status(404).send(err))
     })
-    .post(path.todo, (req, res) => new Todo(req.body)
-        .save()
-        .then(r => res.json(r))
+    .post(path.todo, (req, res) => new Todo(pick(req.body, 'text', 'completed', 'submittedAt')).save()
+        .then(r => res.status(201).json(r))
+        .catch(err => res.status(400).send(err))
     )
-    .get(path.todo, (req, res) => Todo.find(req.query).then(r => res.json(r))
+    .get(path.todo, (req, res) => User.find(req.query)
+        .then(r => res.json(r))
+        .catch(err => res.status(400).send(err))
     )
 
 const logStartUp = (err: Error) => {
@@ -66,7 +68,5 @@ const logStartUp = (err: Error) => {
     // tslint:disable-next-line:no-console
     console.log(`database url ${process.env.MONGODB_URI}`)
 }
-
 app.listen(process.env.PORT, logStartUp)
-
 export const application: any = app

@@ -1,8 +1,14 @@
 import { mongoose } from '../database/mongoose'
 import { Schema } from 'mongoose'
 
-export const Todo = mongoose.model(
-    'Todo', 
+export interface TodoModel extends mongoose.Document {
+    text: string,
+    completed?: boolean,
+    submittedAt?: number
+}
+
+export const Todo = mongoose.model<TodoModel>(
+    'Todo',
     new Schema({
         text: {
             type: String,
@@ -14,7 +20,7 @@ export const Todo = mongoose.model(
             type: Boolean,
             default: false
         },
-        submitedAt: {
+        submittedAt: {
             type: Number
         }
     })

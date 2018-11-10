@@ -1,36 +1,48 @@
 import { agent } from 'supertest'
 import { application as app, path } from '../src/server'
 import { User } from '../src/models/user'
+import { TodoModel, Todo } from '../src/models/todo';
 
 const defaultUsers = [
     {
         _id: '5bce079f7a3b020f9c726cb1',
-        name: 'one',
-        email: 'email',
-        password: 'password'
+        email: 'email@ex.ex',
+        password: 'password',
+        tokens: [{ access: '1', token: 't1' }]
     },
     {
         _id: '5bce079f7a3b020f9c726cb2',
-        name: 'two',
-        email: 'email',
-        password: 'password'
+        email: 'email2@ex.ex',
+        password: 'password',
+        tokens: [{ access: '2', token: 't2' }]
+    }
+]
+
+const defaultTodos = [
+    {
+        _id: '5bce079f7a3b020f9c726cb1',
+        text: 'text1'
+    },
+    {
+        _id: '5bce079f7a3b020f9c726cb2',
+        text: 'text2'
     }
 ]
 
 const OLD_ENV = process.env;
 
-afterEach(() => {
+afterEach(async () => {
     process.env = OLD_ENV;
+    await User.deleteMany({})
 });
-beforeEach(done => {
-    User.deleteMany({})
+beforeEach(async () => {
+    await User.deleteMany({})
         .then(() => defaultUsers.forEach(u => new User(u).save()))
-        .then(() => done())
-    // jest.resetModules() // this is important
+    await Todo.deleteMany({})
+        .then(() => defaultTodos.forEach(u => new Todo(u).save()))
     process.env = { ...OLD_ENV };
     process.env.NODE_ENV = 'test';
 })
-
 describe('User endpoints', () => {
     describe('GET /user', () => {
         it('should get all users', async () => {
@@ -40,7 +52,7 @@ describe('User endpoints', () => {
             expect(body).toHaveLength(2)
         });
         it('should get get users by param', async () => {
-            const { body, status } = await agent(app).get(path.user).query('name=one').send()
+            const { body, status } = await agent(app).get(path.user).query('email=email@ex.ex').send()
             expect(status).toBe(200);
             expect(body).toBeInstanceOf(Array)
             expect(body).toHaveLength(1)
@@ -56,8 +68,7 @@ describe('User endpoints', () => {
     describe('POST /user', () => {
         it('should create one user', async () => {
             const userPost = {
-                name: 'name',
-                email: 'email',
+                email: 'email@qwe.rt',
                 password: 'password'
             };
             const { body, status } = await agent(app)
@@ -65,13 +76,11 @@ describe('User endpoints', () => {
                 .send(userPost)
             expect(status).toBe(201)
             expect(body).toBeInstanceOf(Object)
-            expect(body.name).toBe('name')
-            expect(body.email).toBe('email')
-            expect(body.password).toBe('password')
+            expect(body.email).toBe(userPost.email)
+            expect(body.password).toBe(userPost.password)
 
             const users = await User.find(userPost) as any[]
             expect(users).toHaveLength(1)
-            expect(users[0].name).toBe(userPost.name)
             expect(users[0].email).toBe(userPost.email)
             expect(users[0].password).toBe(userPost.password)
             expect(users[0].id).not.toBeUndefined()
@@ -135,6 +144,34 @@ describe('User endpoints', () => {
             const allUsersResponse = await agent(app).get(path.user).send()
             expect(allUsersResponse.body).toBeInstanceOf(Array)
             expect(allUsersResponse.body).toHaveLength(1)
+        });
+    });
+});
+
+describe('Todo endpoints', () => {
+    describe('GET /todo', () => {
+        it('should get all todos', async () => {
+            const { body, status } = await agent(app).get(path.todo).send()
+            expect(status).toBe(200);
+            expect(body).toBeInstanceOf(Array)
+            expect(body).toHaveLength(2)
+        });
+    });
+    describe('POST /todo', () => {
+        it('should create one todo', async () => {
+            const todo: Partial<TodoModel> = {
+                text: 'demo'
+            };
+            const { body, status } = await agent(app)
+                .post(path.todo)
+                .send(todo)
+            expect(status).toBe(201)
+            expect(body).toBeInstanceOf(Object)
+            expect(body.text).toBe(todo.text)
+
+            const todos = await Todo.find(todo) as TodoModel[]
+            expect(todos).toHaveLength(1)
+            expect(todos[0].text).toBe(todo.text)
         });
     });
 });
