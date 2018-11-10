@@ -17,6 +17,7 @@ import helmet from 'helmet'
 import { inCase } from 'declarative-js'
 import { pick } from 'lodash'
 import { constants as c } from './server.constants'
+import { authenticate } from './middleware/authenticate'
 
 export const path = {
     user: '/user',
@@ -35,14 +36,7 @@ app
             .catch(err => res.status(400).send(err))
     }
     )
-    .get(path.user + '/me', (req, res) => User.findByToken(req.header(c.AUTH_HEADER)!)
-        .then(user => {
-            if (user) {
-                res.send(user)
-            }
-            throw Error()
-        })
-        .catch(() => res.status(401).send())
+    .get(path.user + '/me', authenticate, (req, res) => res.send((<any> req).user)
     )
 
     .get(path.user, (req, res) => User.find(req.query)
